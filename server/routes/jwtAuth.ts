@@ -2,11 +2,12 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import pool from "../db";
 import jwtGenerator from "../utils/jwtGenerator";
-// const jwtGenerator = require("../utils/jwtGenerator");
+import validInfo from "../middleware/validInfo";
+import authorization from "../middleware/authorization";
 
 const router = Router();
 
-router.post("/register", async (req: Request, res: Response) => {
+router.post("/register", validInfo, async (req: Request, res: Response) => {
   try {
     // 1. destructure req.body (name, email, password)
 
@@ -48,7 +49,7 @@ router.post("/register", async (req: Request, res: Response) => {
 
 // Login route
 
-router.post("/login", async (req: Request, res: Response) => {
+router.post("/login", validInfo, async (req: Request, res: Response) => {
   try {
     // 1. Destructure the req.body
 
@@ -79,6 +80,14 @@ router.post("/login", async (req: Request, res: Response) => {
     const token = jwtGenerator(user.rows[0].user_id);
 
     res.json({ token });
+  } catch (err) {
+    console.error(err.message);
+  }
+});
+
+router.get("/is-verify", authorization, async (req: Request, res: Response) => {
+  try {
+    res.json(true);
   } catch (err) {
     console.error(err.message);
   }
